@@ -6,6 +6,7 @@ x-base_service: &base_service
     volumes:
       - &v1 ./data:/data
       - &v2 ./output:/output
+      - &v3 ./data/config/comfy/custom_nodes:/stable-diffusion/custom_nodes
     stop_signal: SIGKILL
     tty: true
     deploy:
