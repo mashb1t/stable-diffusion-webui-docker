@@ -4,3 +4,9 @@
 # VSCode specific
 *.code-workspace
 /.vscode
+/data/user
+
+# Jetbrains specific
+.idea
+
+.env

@@ -5,10 +5,29 @@ x-base_service: &base_service
       - "${WEBUI_PORT:-7860}:7860"
     volumes:
       - &v1 ./data:/data
-      - &v2 ./output:/output
-      - &v3 ./data/config/comfy/custom_nodes:/stable-diffusion/custom_nodes
+      - &v2 output:/output
+      - &v3 models:/stable-diffusion/models
+      - &v4 ./data/config/comfy/custom_nodes:/stable-diffusion/custom_nodes
+      - &v5 ./data/user:/stable-diffusion/user
+      - &v6 ./data/web/scripts/defaultGraph.js:/stable-diffusion/web/scripts/defaultGraph.js
     stop_signal: SIGKILL
+    restart: unless-stopped
     tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-i", "http://localhost:7860/"]
+      interval: 1m
+      timeout: 20s
+      retries: 3
+      start_period: 1m
+    logging:    
+      # https://docs.docker.com/engine/admin/logging/splunk/#splunk-options
+      driver: splunk
+      options:
+        splunk-token: 95b7f38d-83cc-425e-95a1-da7a2bd90a47
+        splunk-verify-connection: "false"
+        splunk-url: http://splunk.odt.net:8088/
+        labels: ai-odt-net,comfyui
+        tag: "[Container: {{.Name}}/{{.ID}}] [Image: {{.ImageName}}] [ENV=production]"
     deploy:
       resources:
         reservations:
@@ -63,7 +82,8 @@ services:
     build: ./services/comfy/
     image: sd-comfy:6
     environment:
-      - CLI_ARGS=
+      - CLI_ARGS=--highvram --multi-user
+      #- CLI_ARGS=--enable-cors-header http://localhost:3000 --highvram --multi-user --disable-metadata
 
 
   comfy-cpu:
@@ -72,3 +92,7 @@ services:
     deploy: {}
     environment:
       - CLI_ARGS=--cpu
+
+volumes:
+  output:
+  models:
