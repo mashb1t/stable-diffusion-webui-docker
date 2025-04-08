@@ -1,5 +1,3 @@
-version: '3.9'
-
 x-base_service: &base_service
     ports:
       - "${WEBUI_PORT:-7860}:7860"
@@ -49,7 +47,7 @@ services:
     <<: *base_service
     profiles: ["auto"]
     build: ./services/AUTOMATIC1111
-    image: sd-auto:72
+    image: sd-auto:78
     environment:
       - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api
 
@@ -60,27 +58,11 @@ services:
     environment:
       - CLI_ARGS=--no-half --precision full --allow-code --enable-insecure-extension-access --api
 
-  invoke: &invoke
-    <<: *base_service
-    profiles: ["invoke"]
-    build: ./services/invoke/
-    image: sd-invoke:30
-    environment:
-      - PRELOAD=true
-      - CLI_ARGS=--xformers
-
-  # invoke-cpu:
-  #   <<: *invoke
-  #   profiles: ["invoke-cpu"]
-  #   environment:
-  #     - PRELOAD=true
-  #     - CLI_ARGS=--always_use_cpu
-
   comfy: &comfy
     <<: *base_service
     profiles: ["comfy"]
     build: ./services/comfy/
-    image: sd-comfy:6
+    image: sd-comfy:7
     environment:
       - CLI_ARGS=--highvram --multi-user
       #- CLI_ARGS=--enable-cors-header http://localhost:3000 --highvram --multi-user --disable-metadata
